@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>PREDICTATRON 2</title>
+
+    <!-- Google fonts -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,700' rel='stylesheet' type='text/css'>
+
+    <!-- font awesome -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}"/>
+
+    <!-- animate.css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/animate/animate.css') }}"/>
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/style.css') }}">
+
+</head>
+
+<body id="home">
+
+<!-- Header Starts -->
+<div class="navbar-wrapper">
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation" id="top-nav">
+        <div class="container">
+            <div class="navbar-header">
+                <!-- Logo Starts -->
+                <a class="navbar-brand" href="/">predictatron 2</a>
+                <!-- #Logo Ends -->
+
+
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            </div>
+
+
+            <!-- Nav Starts -->
+            <div class="navbar-collapse  collapse">
+                <ul class="nav navbar-nav navbar-right scroll">
+                    <li><a href="/#home">Home</a></li>
+                    <li><a href="/#about">About</a></li>
+                    <li><a href="/#works">Reports</a></li>
+                    <li><a href="/#contact">Contact</a></li>
+                </ul>
+            </div>
+            <!-- #Nav Ends -->
+
+        </div>
+    </div>
+
+</div>
+<!-- #Header Starts -->
+
+
+<div class="container">
+    <div class="wrapper">
+
+
+        <!-- about -->
+        <div id="about" class="about">
+            <div class="row">
+                <div class="col-sm-12 wowload fadeInRight">
+                    <div class="spacer"><h2><i class="fa fa-flask"></i> Epics - FPI</h2>
+                        &lt;&lt; <a href="/dash">Back to dashboard</a><br/>
+
+                        {% for x in epics %}
+                            {% if epics[x]['goal_period']==1 %}
+                            <div style="margin: 10px 10px 10px 10px; padding: 5px 5px 5px 5px; display: inline-block; background-image: url('{{url_for('static', filename='images/'+epics[x]['status']+'.png')}}'); border:1px solid black; width: 270px;">
+                                    <h3 style="text-align: center;">{{ epics[x]['epic_title'] }}</h3>
+                                    <p style="text-align: center;">Goal period: {{ epics[x]['goal_period'] }}</p>
+                                    <p style="text-align: center;">Small: {{ epics[x]['kanban_small'] }} Medium: {{ epics[x]['kanban_medium'] }}
+                                    Large: {{ epics[x]['kanban_large'] }} XL: {{ epics[x]['kanban_xl'] }}</p>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <hr/>
+
+                        {% for x in epics %}
+                            {% if epics[x]['goal_period']>=2 %}
+                            <div style="margin: 10px 10px 10px 10px; padding: 5px 5px 5px 5px; display: inline-block; background-image: url('{{url_for('static', filename='images/'+epics[x]['status']+'.png')}}'); border:1px solid black; width: 270px;">
+                                    <h3 style="text-align: center;">{{ epics[x]['epic_title'] }}</h3>
+                                    <p style="text-align: center;">Goal period: {{ epics[x]['goal_period'] }}</p>
+                                    <p style="text-align: center;">Small: {{ epics[x]['kanban_small'] }} Medium: {{ epics[x]['kanban_medium'] }}
+                                    Large: {{ epics[x]['kanban_large'] }} XL: {{ epics[x]['kanban_xl'] }}</p>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <br/><br/><br/>
+                        <p>PREDICTATRON 2 is copyright Land Registry 2017.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Footer Starts -->
+        <div class="footer text-center">
+            Powered by: <a href="http://thebootstrapthemes.com">www.thebootstrapthemes.com</a>
+        </div>
+        <!-- # Footer Ends -->
+        <a href="#home" class="gototop "><i class="fa fa-angle-up  fa-3x"></i></a>
+
+    </div>
+</div>
+
+<!-- jquery -->
+<script src="{{ url_for('static', filename='assets/jquery.js') }}"></script>
+
+<!-- wow script -->
+<script src="{{ url_for('static', filename='assets/wow/wow.min.js') }}"></script>
+
+
+<!-- boostrap -->
+<script src="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.js') }}" type="text/javascript"></script>
+
+<!-- jquery mobile -->
+<script src="{{ url_for('static', filename='assets/mobile/touchSwipe.min.js') }}"></script>
+
+
+<!-- custom script -->
+<!-- script src="{{ url_for('static', filename='assets/script.js') }}"></script -->
+
+</body>
+</html>

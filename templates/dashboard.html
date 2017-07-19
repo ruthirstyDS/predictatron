@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>PREDICTATRON 2</title>
+
+    <!-- Google fonts -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,700' rel='stylesheet' type='text/css'>
+
+    <!-- font awesome -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}"/>
+
+    <!-- animate.css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/animate/animate.css') }}"/>
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/style.css') }}">
+
+</head>
+
+<body id="home">
+
+<!-- Header Starts -->
+<div class="navbar-wrapper">
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation" id="top-nav">
+        <div class="container">
+            <div class="navbar-header">
+                <!-- Logo Starts -->
+                <a class="navbar-brand" href="/">predictatron 2</a>
+                <!-- #Logo Ends -->
+
+
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            </div>
+
+
+            <!-- Nav Starts -->
+            <div class="navbar-collapse  collapse">
+                <ul class="nav navbar-nav navbar-right scroll">
+                    <li><a href="/#home">Home</a></li>
+                    <li><a href="/#about">About</a></li>
+                    <li><a href="/#works">Reports</a></li>
+                    <li><a href="/#contact">Contact</a></li>
+                </ul>
+            </div>
+            <!-- #Nav Ends -->
+
+        </div>
+    </div>
+
+</div>
+<!-- #Header Starts -->
+
+
+<div class="container">
+    <div class="wrapper">
+
+
+        <!-- about -->
+        <div id="about" class="about">
+            <div class="row">
+                <div class="col-sm-12 wowload fadeInRight">
+                    <div class="spacer"><h2><i class="fa fa-flask"></i> Dashboard</h2>
+                        Select snapshot (viewing {{snapshot_name}}):
+                        {% for mi_date in date_list %}
+                            <a href="/dash/1.5/{{mi_date}}">{{ mi_date }}</a> |
+                        {% endfor %}
+                        <br/>
+                        Select safety multiplier: <a href="/dash/1.0/{{snapshot_date}}">1.0</a> | <a href="/dash/1.1/{{snapshot_date}}">1.1</a> |
+                            <a href="/dash/1.2/{{snapshot_date}}">1.2</a> | <a href="/dash/1.3/{{snapshot_date}}">1.3</a> | <a href="/dash/1.4/{{snapshot_date}}">1.4</a> |
+                            <a href="/dash/1.5/{{snapshot_date}}">1.5</a> | <a href="/dash/1.6/{{snapshot_date}}">1.6</a> | <a href="/dash/1.7/{{snapshot_date}}">1.7</a> |
+                            <a href="/dash/1.8/{{snapshot_date}}">1.8</a> | <a href="/dash/1.9/{{snapshot_date}}">1.9</a> | <a href="/dash/2.0/{{snapshot_date}}">2.0</a>
+                        <!-- &gt;&gt; a href="/epics">Go to  epics</a -->
+                        <canvas id="graphCanvas" width="1200" height="700" style="border:1px solid #d3d3d3;">
+                            Your browser does not support the canvas element.
+                        </canvas>
+                        <script>
+
+                            Date.prototype.addDays = function(days) {
+                                var dat = new Date(this.valueOf());
+                                dat.setDate(dat.getDate() + days);
+                                return dat;
+                            }
+                            var start_date = new Date({{ snapshot_date.strftime('%Y') }}, ({{ snapshot_date.strftime('%m') }} - 1), {{ snapshot_date.strftime('%d') }});
+                            var canvas = document.getElementById("graphCanvas");
+                            var ctx = canvas.getContext("2d");
+                            var backlog = {{ backlog|string }};
+                            var multiplier = {{ multiplier|string }};
+                            var velocity = {{ velocity|string }};
+                            var history_weeks = {{ history_weeks|string }};
+                            var min = {{ min|string }};
+                            var min_date = start_date.addDays(min * 7);
+                            var med = {{ med|string }};
+                            var med_date = start_date.addDays(med * 7);
+                            var max = {{ max|string }};
+                            var max_date = start_date.addDays(max * 7);
+                            var twelve_weeks_after_start_date = start_date.addDays(12 * 7);
+                            var twenty_four_weeks_after_start_date = twelve_weeks_after_start_date.addDays(12 * 7);
+                            var thirty_six_weeks_after_start_date = twenty_four_weeks_after_start_date.addDays(12 * 7);
+                            var magnifier = {{ magnifier|string }};
+                            var originx = 100;
+                            var originy = 500;
+                            var targety = 100;
+                            var p1_epics={{ p1_epics_total }};
+                            var total_height=500-100;
+                            ctx.font = "14px Arial";
+
+                            ctx.fillText("backlog " + backlog, 10, 100);
+                            ctx.fillText("safety margin multiplier " + multiplier, 700, 720-targety);
+                            ctx.fillText("average team velocity   " + velocity + "  (averaged over " + history_weeks + " weeks)", 700, 745-targety);
+
+                            ctx.beginPath();
+                            ctx.strokeStyle = 'black';
+                            ctx.moveTo(originx, 100);
+                            ctx.lineTo(originx, 500);
+                            ctx.stroke();
+                            ctx.moveTo(originx,500);
+                            ctx.lineTo(1000,500);
+                            ctx.stroke();
+                            ctx.fillText("Snapshot", 25, 480);
+                            ctx.fillText({{ snapshot_date.strftime('%Y%m%d') }}, 25, 500);
+                            // start rotate - snapshot date
+                            ctx.save();
+                            ctx.translate( 100, 505 ); ctx.rotate( Math.PI / 2 );
+                            ctx.font = "10px Arial"; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
+                            ctx.fillText(start_date.toDateString(), 0, 0);
+                            ctx.restore();
+                            // end rotate
+
+                            // medium prediction
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#dddd00';
+                            ctx.moveTo(originx, originy);
+                            ctx.lineTo((med * magnifier)+100, targety);
+                            ctx.stroke();
+                            ctx.moveTo((med * magnifier)+100, 450);
+                            ctx.lineTo((med * magnifier)+100, 500);
+                            ctx.stroke();
+                            ctx.fillText(" " + med + " weeks", (med * magnifier)+100, targety-5);
+                            // start rotate - medium prediction date
+                            ctx.save();
+                            ctx.translate( (med * magnifier)+100, 505 ); ctx.rotate( Math.PI / 2 );
+                            ctx.font = "10px Arial"; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
+                            ctx.fillText(med_date.toDateString(), 0, 0);
+                            ctx.restore();
+                            // end rotate
+
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#00ff00';
+                            ctx.moveTo(originx, originy);
+                            ctx.lineTo((min * magnifier)+100, targety);
+                            ctx.stroke();
+                            ctx.moveTo((min * magnifier)+100, 450);
+                            ctx.lineTo((min * magnifier)+100, 500);
+                            ctx.stroke();
+                            ctx.fillText(" " + min + " weeks", (min * magnifier)+100, targety-5);
+                            // start rotate - minimum prediction date
+                            ctx.save();
+                            ctx.translate( (min * magnifier)+100, 505 ); ctx.rotate( Math.PI / 2 );
+                            ctx.font = "10px Arial"; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
+                            ctx.fillText(min_date.toDateString(), 0, 0);
+                            ctx.restore();
+                            // end rotate
+
+
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#ff0000';
+                            ctx.moveTo(originx, originy);
+                            ctx.lineTo((max * magnifier)+100, targety);
+                            ctx.stroke();
+                            ctx.moveTo((max * magnifier)+100, 450);
+                            ctx.lineTo((max * magnifier)+100, 500);
+                            ctx.stroke();
+                            ctx.fillText(" " + max + " weeks", (max * magnifier)+100, targety-5);
+                            // start rotate - maximum prediction date
+                            ctx.save();
+                            ctx.translate( (max * magnifier)+100, 505 ); ctx.rotate( Math.PI / 2 );
+                            ctx.font = "10px Arial"; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
+                            ctx.fillText(max_date.toDateString(), 0, 0);
+                            ctx.restore();
+                            // end rotate
+
+                            // twelve weeks after start date marker
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#000000';
+                            ctx.setLineDash([5, 3]);
+                            ctx.moveTo((12 * magnifier)+100, 125);
+                            ctx.lineTo((12 * magnifier)+100, 500);
+                            ctx.stroke();
+                            // start rotate - marker for twelve weeks after start date
+                            ctx.save();
+                            ctx.translate( (12 * magnifier)+100, 505 ); ctx.rotate( Math.PI / 2 );
+                            ctx.font = "10px Arial"; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
+                            ctx.fillText(twelve_weeks_after_start_date.toDateString(), 0, 0);
+                            ctx.restore();
+                            // end rotate
+                            ctx.fillText("12", (12 * magnifier)+100, 135);
+
+                            // twenty four weeks after start date marker
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#000000';
+                            ctx.setLineDash([5, 3]);
+                            ctx.moveTo((24 * magnifier)+100, 125);
+                            ctx.lineTo((24 * magnifier)+100, 500);
+                            ctx.stroke();
+                            // start rotate - marker for twelve weeks after start date
+                            ctx.save();
+                            ctx.translate( (24 * magnifier)+100, 505 ); ctx.rotate( Math.PI / 2 );
+                            ctx.font = "10px Arial"; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
+                            ctx.fillText(twenty_four_weeks_after_start_date.toDateString(), 0, 0);
+                            ctx.restore();
+                            // end rotate
+                            ctx.fillText("24", (24 * magnifier)+100, 135);
+
+                            // thirty six weeks after start date marker
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#000000';
+                            ctx.setLineDash([5, 3]);
+                            ctx.moveTo((36 * magnifier)+100, 125);
+                            ctx.lineTo((36 * magnifier)+100, 500);
+                            ctx.stroke();
+                            // start rotate - marker for twelve weeks after start date
+                            ctx.save();
+                            ctx.translate( (36 * magnifier)+100, 505 ); ctx.rotate( Math.PI / 2 );
+                            ctx.font = "10px Arial"; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
+                            ctx.fillText(thirty_six_weeks_after_start_date.toDateString(), 0, 0);
+                            ctx.restore();
+                            // end rotate
+                            ctx.fillText("36", (36 * magnifier)+100, 135);
+
+                            // Period 1 epics horizontal line
+                            //var p1_position = (total_height/backlog)*p1_epics;
+                            //var p1_position_draw_y = 500-p1_position;
+                            //ctx.beginPath();
+                            //ctx.strokeStyle = '#000000';
+                            //ctx.setLineDash([5, 3]);
+                            //ctx.moveTo(100, p1_position_draw_y);
+                            //ctx.lineTo(1000, p1_position_draw_y);
+                            //ctx.stroke();
+                            //ctx.fillText("P1 Epics ("+p1_epics+")", 1000, p1_position_draw_y);
+
+                            // Period 1 epics growth line
+                            //var p1_growth_position = (total_height/backlog)*(p1_epics+(p1_epics/2));
+                            //var p1_growth_position_draw_y = 500-p1_growth_position;
+                            //ctx.beginPath();
+                            //ctx.strokeStyle = '#000000';
+                            //ctx.setLineDash([5, 3]);
+                            //ctx.moveTo(100, p1_growth_position_draw_y);
+                            //ctx.lineTo(1000, p1_growth_position_draw_y);
+                            //ctx.stroke();
+                            //ctx.fillText("P1 Epics Growth", 1000, p1_growth_position_draw_y);
+
+                            // Total backlog line
+                            ctx.beginPath();
+                            ctx.strokeStyle='#000000';
+                            ctx.setLineDash([5, 3]);
+                            ctx.moveTo(100,100);
+                            ctx.lineTo(1000,100);
+                            ctx.stroke();
+
+                            // target circle
+                            ctx.fillStyle='blue';
+                            ctx.fillText('O',(12 * magnifier)+95, p1_growth_position_draw_y+5)
+
+                        </script>
+
+                        <br/><br/><br/>
+                        <p>PREDICTATRON 2 is copyright Land Registry 2017.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Footer Starts -->
+        <div class="footer text-center">
+            Powered by: <a href="http://thebootstrapthemes.com">www.thebootstrapthemes.com</a>
+        </div>
+        <!-- # Footer Ends -->
+        <a href="#home" class="gototop "><i class="fa fa-angle-up  fa-3x"></i></a>
+
+    </div>
+</div>
+
+<!-- jquery -->
+<script src="{{ url_for('static', filename='assets/jquery.js') }}"></script>
+
+<!-- wow script -->
+<script src="{{ url_for('static', filename='assets/wow/wow.min.js') }}"></script>
+
+
+<!-- boostrap -->
+<script src="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.js') }}" type="text/javascript"></script>
+
+<!-- jquery mobile -->
+<script src="{{ url_for('static', filename='assets/mobile/touchSwipe.min.js') }}"></script>
+
+
+<!-- custom script -->
+<!-- script src="{{ url_for('static', filename='assets/script.js') }}"></script -->
+
+</body>
+</html>
